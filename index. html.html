@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SM BD WIN — Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+        body{background:linear-gradient(135deg,#0f0c29,#1a1a2e,#16213e);min-height:100vh;color:#fff;padding-bottom:40px;}
+
+        /* LOGIN SCREEN */
+        #login-screen{position:fixed;inset:0;background:linear-gradient(135deg,#0f0c29,#1a1a2e,#16213e);z-index:9999;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:30px;}
+        .login-logo{font-size:48px;margin-bottom:10px;}
+        .login-title{font-size:26px;font-weight:900;color:#f39c12;letter-spacing:2px;text-transform:uppercase;}
+        .login-sub{font-size:12px;color:#64748b;margin-bottom:40px;letter-spacing:1px;}
+        .login-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:24px;padding:32px 24px;width:100%;max-width:360px;}
+        .login-label{font-size:12px;color:#94a3b8;font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;}
+        .login-input{width:100%;padding:14px 16px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:12px;color:#fff;font-size:18px;font-weight:700;letter-spacing:4px;outline:none;margin-bottom:20px;text-align:center;}
+        .login-input:focus{border-color:#f39c12;}
+        .login-btn{width:100%;padding:15px;border:none;border-radius:14px;background:linear-gradient(135deg,#f39c12,#e67e22);color:#fff;font-weight:800;font-size:16px;cursor:pointer;letter-spacing:0.5px;text-transform:uppercase;box-shadow:0 6px 20px rgba(243,156,18,0.35);}
+        .login-error{color:#ff4d4d;font-size:13px;font-weight:600;text-align:center;margin-top:12px;display:none;}
+
+        /* ADMIN PANEL */
+        #admin-screen{display:none;}
+        .admin-topbar{background:linear-gradient(135deg,#f39c12,#e67e22);padding:16px 20px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 4px 20px rgba(243,156,18,0.3);}
+        .admin-topbar-left{display:flex;flex-direction:column;}
+        .admin-topbar-title{font-size:18px;font-weight:900;color:#fff;letter-spacing:1px;}
+        .admin-topbar-sub{font-size:11px;color:rgba(255,255,255,0.75);font-weight:500;}
+        .admin-topbar-right{display:flex;align-items:center;gap:10px;}
+        .fb-live-badge{background:rgba(0,0,0,0.2);border-radius:20px;padding:5px 12px;font-size:11px;font-weight:700;color:#fff;display:flex;align-items:center;gap:5px;}
+        .live-dot{width:7px;height:7px;border-radius:50%;background:#2ecc71;animation:pulse 1.5s infinite;}
+        @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+        .logout-btn{background:rgba(0,0,0,0.2);border:none;color:#fff;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;}
+
+        .admin-body{padding:16px;}
+
+        /* MARKET CARDS */
+        .market-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:20px;margin-bottom:16px;transition:0.3s;}
+        .market-card.active-edit{border-color:#f39c12;background:rgba(243,156,18,0.06);}
+        .market-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+        .market-name-box{display:flex;flex-direction:column;gap:3px;}
+        .market-name{font-size:16px;font-weight:800;color:#f39c12;}
+        .market-badge{display:inline-block;background:rgba(243,156,18,0.15);color:#f39c12;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;border:1px solid rgba(243,156,18,0.3);width:fit-content;}
+        .current-trend-show{display:flex;align-items:center;gap:6px;background:rgba(46,204,113,0.1);border:1px solid rgba(46,204,113,0.25);border-radius:10px;padding:6px 12px;}
+        .current-trend-label{font-size:11px;color:#64748b;font-weight:500;}
+        .current-trend-name{font-size:13px;font-weight:700;color:#2ecc71;}
+
+        .section-label{font-size:11px;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;}
+
+        .trend-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;}
+        .trend-card{background:rgba(255,255,255,0.03);border:1.5px solid rgba(255,255,255,0.08);border-radius:12px;padding:10px 12px;cursor:pointer;transition:0.2s;display:flex;align-items:center;gap:10px;}
+        .trend-card:active{transform:scale(0.97);}
+        .trend-card.selected{background:rgba(243,156,18,0.12);border-color:#f39c12;}
+        .trend-icon{font-size:20px;flex-shrink:0;}
+        .trend-info{flex:1;}
+        .trend-name{font-size:12px;font-weight:700;color:#e2e8f0;}
+        .trend-desc{font-size:10px;color:#64748b;margin-top:1px;}
+        .trend-radio{width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,0.2);flex-shrink:0;}
+        .trend-card.selected .trend-radio{background:#f39c12;border-color:#f39c12;position:relative;}
+        .trend-card.selected .trend-radio::after{content:'✓';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:9px;color:#fff;}
+
+        .chaos-section{margin-bottom:16px;}
+        .chaos-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+        .chaos-value{background:rgba(243,156,18,0.15);color:#f39c12;font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;}
+        input[type=range].slider{width:100%;height:5px;border-radius:5px;-webkit-appearance:none;appearance:none;background:rgba(255,255,255,0.1);outline:none;}
+        input[type=range].slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,#f39c12,#e67e22);cursor:pointer;box-shadow:0 2px 8px rgba(243,156,18,0.5);}
+
+        .apply-btn{width:100%;padding:12px;border:none;border-radius:12px;background:linear-gradient(135deg,#2ecc71,#27ae60);color:#fff;font-weight:800;font-size:14px;cursor:pointer;box-shadow:0 4px 15px rgba(46,204,113,0.3);transition:0.2s;text-transform:uppercase;letter-spacing:0.5px;}
+        .apply-btn:active{transform:scale(0.98);}
+        .apply-btn.applied{background:linear-gradient(135deg,#3498db,#2980b9);}
+
+        /* SAVE ALL */
+        .save-all-section{margin-top:8px;padding:0 0 10px;}
+        .save-all-btn{width:100%;padding:16px;border:none;border-radius:16px;background:linear-gradient(135deg,#f39c12,#e67e22);color:#fff;font-weight:900;font-size:17px;cursor:pointer;box-shadow:0 8px 25px rgba(243,156,18,0.4);letter-spacing:0.5px;text-transform:uppercase;}
+        .save-all-btn:active{transform:scale(0.98);}
+
+        .success-toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.8);background:rgba(46,204,113,0.95);color:#fff;padding:14px 30px;border-radius:30px;font-size:15px;font-weight:700;z-index:99999;opacity:0;visibility:hidden;transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);white-space:nowrap;}
+        .success-toast.show{opacity:1;visibility:visible;transform:translate(-50%,-50%) scale(1);}
+
+        /* DIVIDER */
+        .section-divider{height:1px;background:rgba(255,255,255,0.06);margin:8px 0 16px;}
+
+        /* STATUS BAR */
+        .status-bar{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:12px 16px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;}
+        .status-bar-text{font-size:12px;color:#64748b;font-weight:500;}
+        .status-bar-val{font-size:12px;font-weight:700;color:#2ecc71;}
+    </style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+    <div class="login-logo">🔐</div>
+    <div class="login-title">Admin Panel</div>
+    <div class="login-sub">SM BD WIN — Trend Controller</div>
+    <div class="login-card">
+        <div class="login-label">Password</div>
+        <input type="password" class="login-input" id="password-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+        <button class="login-btn" onclick="doLogin()">🔓 Login</button>
+        <div class="login-error" id="login-error">❌ Wrong password! Try again.</div>
+    </div>
+</div>
+
+<!-- ADMIN SCREEN -->
+<div id="admin-screen">
+    <div class="admin-topbar">
+        <div class="admin-topbar-left">
+            <div class="admin-topbar-title">⚙️ Admin Control</div>
+            <div class="admin-topbar-sub">SM BD WIN — Trend Engine</div>
+        </div>
+        <div class="admin-topbar-right">
+            <div class="fb-live-badge"><div class="live-dot" id="live-dot"></div><span id="live-text">Connecting...</span></div>
+            <button class="logout-btn" onclick="doLogout()">Logout</button>
+        </div>
+    </div>
+
+    <div class="admin-body">
+        <div class="status-bar">
+            <span class="status-bar-text">🔥 Firebase Realtime Database</span>
+            <span class="status-bar-val" id="db-status">Connecting...</span>
+        </div>
+
+        <div id="markets-container"></div>
+
+        <div class="save-all-section">
+            <button class="save-all-btn" onclick="saveAll()">💾 Save All & Apply</button>
+        </div>
+    </div>
+</div>
+
+<div class="success-toast" id="success-toast">✅ Changes Applied!</div>
+
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyClO-zbaL27NTlFB91Y5XXX0ijXuPuDwDw",
+  authDomain: "sm-bd-win-game.firebaseapp.com",
+  databaseURL: "https://sm-bd-win-game-default-rtdb.firebaseio.com",
+  projectId: "sm-bd-win-game",
+  storageBucket: "sm-bd-win-game.firebasestorage.app",
+  messagingSenderId: "339596767811",
+  appId: "1:339596767811:web:c855221165f38cab761af6"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+// ============================================================
+// PASSWORD — এইখানে পাসওয়ার্ড চেঞ্জ করো
+// ============================================================
+const ADMIN_PASSWORD = "SMBD@2025";
+
+const TRENDS = {
+    'alternate':    { name:'Alternate',     icon:'🔄', desc:'B-S-B-S-B-S...' },
+    'bb_s':         { name:'BB-S',          icon:'📈', desc:'B-B-S-B-B-S...' },
+    'ss_b':         { name:'SS-B',          icon:'📉', desc:'S-S-B-S-S-B...' },
+    'bbb_s':        { name:'BBB-S',         icon:'🔺', desc:'B-B-B-S repeat...' },
+    'sss_b':        { name:'SSS-B',         icon:'🔻', desc:'S-S-S-B repeat...' },
+    'dragon_big':   { name:'Dragon Big',    icon:'🐉', desc:'B-B-B-B-B-B...' },
+    'dragon_small': { name:'Dragon Small',  icon:'🌊', desc:'S-S-S-S-S-S...' },
+    'chaos':        { name:'Full Chaos',    icon:'🌪️', desc:'Completely random' }
+};
+
+const MARKETS = {
+    '30S': 'WinGo 30s',
+    '1M':  'WinGo 1 Min',
+    '3M':  'WinGo 3 Min',
+    '5M':  'WinGo 5 Min'
+};
+
+let currentConfig = {
+    '30S':{ trend:'alternate', chaos:0.12 },
+    '1M': { trend:'bb_s',     chaos:0.10 },
+    '3M': { trend:'bbb_s',    chaos:0.08 },
+    '5M': { trend:'dragon_big', chaos:0.06 }
+};
+let editConfig = {};
+
+// ============================================================
+// LOGIN
+// ============================================================
+window.doLogin = function() {
+    const input = document.getElementById('password-input').value;
+    if (input === ADMIN_PASSWORD) {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('admin-screen').style.display = 'block';
+        initFirebase();
+    } else {
+        document.getElementById('login-error').style.display = 'block';
+        document.getElementById('password-input').value = '';
+        setTimeout(()=>document.getElementById('login-error').style.display='none', 3000);
+    }
+}
+
+window.doLogout = function() {
+    document.getElementById('admin-screen').style.display = 'none';
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('password-input').value = '';
+}
+
+// ============================================================
+// FIREBASE
+// ============================================================
+function initFirebase() {
+    const configRef = ref(db, 'wingo_config');
+    onValue(configRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+            currentConfig = data;
+            editConfig = JSON.parse(JSON.stringify(data));
+        } else {
+            editConfig = JSON.parse(JSON.stringify(currentConfig));
+        }
+        document.getElementById('live-dot').style.background = '#2ecc71';
+        document.getElementById('live-text').innerText = 'Live ✓';
+        document.getElementById('db-status').innerText = 'Connected';
+        renderMarkets();
+    }, (err) => {
+        document.getElementById('live-dot').style.background = '#ff4d4d';
+        document.getElementById('live-text').innerText = 'Offline';
+        document.getElementById('db-status').innerText = 'Connection Error';
+    });
+}
+
+// ============================================================
+// RENDER
+// ============================================================
+function renderMarkets() {
+    const container = document.getElementById('markets-container');
+    container.innerHTML = '';
+
+    for (let mCode in MARKETS) {
+        const cfg = editConfig[mCode] || { trend:'alternate', chaos:0.12 };
+        const chaosPercent = Math.round(cfg.chaos * 100);
+        const currentTrend = TRENDS[cfg.trend] || TRENDS['alternate'];
+
+        let trendCards = '';
+        for (let tKey in TRENDS) {
+            const t = TRENDS[tKey];
+            const sel = cfg.trend === tKey;
+            trendCards += `
+            <div class="trend-card ${sel?'selected':''}" onclick="selectTrend('${mCode}','${tKey}')">
+                <span class="trend-icon">${t.icon}</span>
+                <div class="trend-info">
+                    <div class="trend-name">${t.name}</div>
+                    <div class="trend-desc">${t.desc}</div>
+                </div>
+                <div class="trend-radio"></div>
+            </div>`;
+        }
+
+        container.innerHTML += `
+        <div class="market-card" id="card-${mCode}">
+            <div class="market-card-header">
+                <div class="market-name-box">
+                    <div class="market-name">${MARKETS[mCode]}</div>
+                    <div class="market-badge">${mCode}</div>
+                </div>
+                <div class="current-trend-show">
+                    <span class="current-trend-label">Active:</span>
+                    <span class="current-trend-name" id="active-trend-${mCode}">${currentTrend.icon} ${currentTrend.name}</span>
+                </div>
+            </div>
+
+            <div class="section-label">Trend Pattern</div>
+            <div class="trend-grid">${trendCards}</div>
+
+            <div class="chaos-section">
+                <div class="section-label">
+                    <div class="chaos-header">
+                        <span>Chaos Level (হঠাৎ পরিবর্তন)</span>
+                        <span class="chaos-value" id="chaos-val-${mCode}">${chaosPercent}%</span>
+                    </div>
+                </div>
+                <input type="range" class="slider" min="0" max="40" value="${chaosPercent}"
+                    oninput="updateChaos('${mCode}', this.value)">
+            </div>
+
+            <div class="section-divider"></div>
+        </div>`;
+    }
+}
+
+window.selectTrend = function(mCode, trendKey) {
+    if (!editConfig[mCode]) editConfig[mCode] = {};
+    editConfig[mCode].trend = trendKey;
+    renderMarkets();
+}
+
+window.updateChaos = function(mCode, val) {
+    if (!editConfig[mCode]) editConfig[mCode] = {};
+    editConfig[mCode].chaos = parseInt(val) / 100;
+    const badge = document.getElementById('chaos-val-' + mCode);
+    if (badge) badge.innerText = val + '%';
+}
+
+window.saveAll = function() {
+    const configRef = ref(db, 'wingo_config');
+    set(configRef, editConfig).then(() => {
+        showSuccessToast('✅ সব মার্কেট আপডেট হয়েছে!');
+        // Update active trend labels
+        for (let mCode in editConfig) {
+            const t = TRENDS[editConfig[mCode].trend];
+            const el = document.getElementById('active-trend-' + mCode);
+            if (el && t) el.innerText = `${t.icon} ${t.name}`;
+        }
+    }).catch(err => {
+        alert('Error: ' + err.message);
+    });
+}
+
+function showSuccessToast(msg) {
+    const toast = document.getElementById('success-toast');
+    toast.innerText = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
